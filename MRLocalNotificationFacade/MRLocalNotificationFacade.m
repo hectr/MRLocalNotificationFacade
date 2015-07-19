@@ -970,7 +970,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     BOOL completed = NO;
     NSURL *URL;
     NSInteger const code = error.code;
-    if ([self mr_isNonRecoverableErrorCode:code]
+    if ([self mr_isNonRecoverableErrorCode:(MRLocalNotificationErrorCode)code]
         || code == MRLocalNotificationErrorCategoryNotRegistered) {
         URL = self.contactSuportURL;
     } else {
