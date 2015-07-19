@@ -23,8 +23,8 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
             notificationFacade.buildAction("default-foreground-0", title: "background", destructive: true, backgroundMode: false, authentication: true),
             notificationFacade.buildAction("default-foreground-1", title: "foreground", destructive: false, backgroundMode: false, authentication: true) ]
         let categoryAll = notificationFacade.buildCategory("all", minimalActions: min, defaultActions: def)
-        let categoryDefault = notificationFacade.buildCategory("default", minimalActions: min, defaultActions: def)
-        let categoryMinimal = notificationFacade.buildCategory("minimal", minimalActions: min, defaultActions: def)
+        let categoryDefault = notificationFacade.buildCategory("default", minimalActions: nil, defaultActions: def)
+        let categoryMinimal = notificationFacade.buildCategory("minimal", minimalActions: min, defaultActions: nil)
         let categories = NSMutableSet.init()
         categories.addObject(categoryAll)
         categories.addObject(categoryMinimal)
