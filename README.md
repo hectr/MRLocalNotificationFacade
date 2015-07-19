@@ -1,3 +1,6 @@
+[![Version](https://img.shields.io/cocoapods/v/MRLocalNotificationFacade.svg?style=flat)](http://cocoapods.org/pods/MRLocalNotificationFacade)
+[![License](https://img.shields.io/cocoapods/l/MRLocalNotificationFacade.svg?style=flat)](http://cocoapods.org/pods/MRLocalNotificationFacade)
+[![Platform](https://img.shields.io/cocoapods/p/MRLocalNotificationFacade.svg?style=flat)](http://cocoapods.org/pods/MRLocalNotificationFacade)
 
 Overview
 ========
@@ -73,7 +76,7 @@ To add **MRLocalNotificationFacade** to your app, add `pod "MRLocalNotificationF
 
 ### Manually
 
-Copy the *MRLocalNotificationFacade* folder into your project.
+Copy the *MRLocalNotificationFacade* directory into your project.
 
 Usage
 -----
