@@ -189,7 +189,7 @@ typedef enum {
  @param identifier The string that you use internally to identify the action.
  @param title The localized string to use as the button title for the action.
  @param isDestructive A Boolean value indicating whether the action is destructive.
- @param runsInBackgroun Whether the app will run background or not when the action is performed.
+ @param runsInBackground Whether the app will run background or not when the action is performed.
  @param authRequired A Boolean value indicating whether the user must unlock the device before the action is performed.
  @return An initialized `UIMutableUserNotificationAction`.
  */
@@ -364,7 +364,7 @@ typedef enum {
 
 /**
  Returns the local notification object (if any) from the given launch options dictionary.
- @parameter launchOptions Launch options dictionary.
+ @param launchOptions Launch options dictionary.
  @returns The local notification object or `nil` if `UIApplicationLaunchOptionsLocalNotificationKey` does not contain a local notification or the given `launchOptions` was `nil`.
  */
 - (UILocalNotification *)getNotificationFromLaunchOptions:(NSDictionary *)launchOptions;
@@ -376,6 +376,8 @@ typedef enum {
 
 /**
  Sets the number for the badge of the app icon in Springboard.
+ 
+ @param applicationIconBadgeNumber New value for the badge of the app icon.
  */
 - (void)setApplicationIconBadgeNumber:(NSInteger)applicationIconBadgeNumber;
 
@@ -485,6 +487,7 @@ typedef enum {
 /**
  Returns the `fireDate` of the given `notification` converted to GMT (if needed).
  
+ @param notification The notification object.
  @return The fire date converted from the notification's `timeZone` to GMT or `nil` if the given `notification` hasn't got `fireDate` or it is `nil` itself.
  */
 - (NSDate *)getGMTFireDateFromNotification:(UILocalNotification *)notification;
