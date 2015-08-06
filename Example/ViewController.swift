@@ -29,7 +29,7 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
         categories.addObject(categoryAll)
         categories.addObject(categoryMinimal)
         categories.addObject(categoryDefault)
-        notificationFacade.registerForNotificationWithBadges(true, alerts: true, sounds: true, categories: categories);
+        notificationFacade.registerForNotificationWithBadges(true, alerts: true, sounds: true, categories: categories as Set<NSObject>);
     }
     
     @IBAction func removeNotificationAction(sender: AnyObject) {
@@ -37,7 +37,7 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
         if (index != nil) {
             let notifications = notificationFacade.scheduledNotifications()
             if (notifications.count > index) {
-                let notification = notifications[index!] as UILocalNotification
+                let notification = notifications[index!] as! UILocalNotification
                 notificationFacade.cancelNotification(notification)
                 selectedIndex = nil
                 tableView.reloadData()
@@ -65,9 +65,9 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> TableCell
     {
-        let cell = tableView.dequeueReusableCellWithIdentifier(textCellIdentifier) as TableCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(textCellIdentifier) as! TableCell
         let notifications = notificationFacade.scheduledNotifications()
-        let notification = notifications[indexPath.row] as UILocalNotification
+        let notification = notifications[indexPath.row] as! UILocalNotification
         cell.setUp(notification)
         return cell
     }
