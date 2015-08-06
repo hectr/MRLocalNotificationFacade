@@ -349,6 +349,13 @@ typedef enum {
 @interface MRLocalNotificationFacade (UIApplication)
 
 /**
+ Returns the `UIApplication` instance.
+ 
+ Default value is `UIApplication.sharedApplication`.
+ */
+@property (nonatomic, strong) UIApplication *defaultApplication;
+
+/**
  Block invoked by `application:didReceiveLocalNotification:` method when a notification is passed as parameter.
  
  `shouldShowAlert` is given a default value according to the application state, but can be changed within the block.

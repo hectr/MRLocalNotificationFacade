@@ -68,20 +68,20 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 - (void)statusBarDidChangeFrame:(NSNotification *const)notification
 {
-    UIApplication *const sharedApplication = UIApplication.sharedApplication;
-    UIInterfaceOrientation const orientation = [sharedApplication statusBarOrientation];
+    UIApplication *const application = UIApplication.sharedApplication;
+    UIInterfaceOrientation const orientation = [application statusBarOrientation];
     UIWindow *const window = self.view.window;
     window.transform = [self mr_transformForOrientation:orientation];
     dispatch_async(dispatch_get_main_queue(), ^{
-        window.bounds = UIApplication.sharedApplication.keyWindow.bounds;
+        window.bounds = application.keyWindow.bounds;
     });
 }
 
 - (void)viewDidAppear:(BOOL const)animated
 {
     [super viewDidAppear:animated];
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    UIInterfaceOrientation const orientation = [sharedApp statusBarOrientation];
+    UIApplication *const application = UIApplication.sharedApplication;
+    UIInterfaceOrientation const orientation = [application statusBarOrientation];
     CGAffineTransform const transform = [self mr_transformForOrientation:orientation];
     UIWindow *const window = self.view.window;
     window.transform = transform;
@@ -124,8 +124,9 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 
 @interface MRLocalNotificationFacade ()
-@property (nonatomic, readwrite) BOOL hasRegisteredNotifications;
+@property (nonatomic, strong) UIApplication *defaultApplication;
 @property (nonatomic, copy) void(^onDidReceiveNotification)(UILocalNotification *n, BOOL *alert);
+@property (nonatomic, readwrite) BOOL hasRegisteredNotifications;
 @property (nonatomic, strong) NSTimeZone *defaultTimeZone;
 @property (nonatomic, strong) NSCalendar *defaultCalendar;
 @property (nonatomic, strong) UIViewController *defaultAlertPresenter;
@@ -318,29 +319,42 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 - (void)scheduleNotification:(UILocalNotification *const)notification
 {
     NSParameterAssert(notification);
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    [sharedApp scheduleLocalNotification:notification];
+    UIApplication *const application = self.defaultApplication;
+    [application scheduleLocalNotification:notification];
 }
 
 - (NSArray *)scheduledNotifications
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    NSArray *const localNotifications = sharedApp.scheduledLocalNotifications;
+    UIApplication *const application = self.defaultApplication;
+    NSArray *const localNotifications = application.scheduledLocalNotifications;
     return localNotifications;
 }
 
 - (void)cancelNotification:(UILocalNotification *const)notification
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
+    UIApplication *const application = self.defaultApplication;
     if (notification) {
-        [sharedApp cancelLocalNotification:notification];
+        [application cancelLocalNotification:notification];
     }
 }
 
 - (void)cancelAllNotifications
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    [sharedApp cancelAllLocalNotifications];
+    UIApplication *const application = self.defaultApplication;
+    [application cancelAllLocalNotifications];
+}
+
+#pragma mark Accessors
+
+- (void)setDefaultApplication:(UIApplication *const)defaultApplication
+{
+    [self willChangeValueForKey:@"defaultApplication"];
+    _defaultApplication = defaultApplication;
+    if (![defaultApplication isEqual:UIApplication.sharedApplication]) {
+        NSLog(@"using %p instead of UIApplication.sharedApplication", defaultApplication);
+    }
+    [self didChangeValueForKey:@"defaultApplication"];
+    
 }
 
 #pragma mark - NSObject
@@ -349,6 +363,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 {
     self = [super init];
     if (self) {
+        _defaultApplication = UIApplication.sharedApplication;
         _defaultTimeZone = NSTimeZone.defaultTimeZone;
         _defaultCalendar = NSCalendar.autoupdatingCurrentCalendar;
         _defaultSoundName = UILocalNotificationDefaultSoundName;
@@ -386,14 +401,14 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     UIUserNotificationSettings *const settings =
     [UIUserNotificationSettings settingsForTypes:types
                                       categories:categories];
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    [sharedApp registerUserNotificationSettings:settings];
+    UIApplication *const application = self.defaultApplication;
+    [application registerUserNotificationSettings:settings];
 }
 
 - (UIUserNotificationSettings *)currentUserNotificationSettings
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    UIUserNotificationSettings *const settings = sharedApp.currentUserNotificationSettings;
+    UIApplication *const application = self.defaultApplication;
+    UIUserNotificationSettings *const settings = application.currentUserNotificationSettings;
     return settings;
 }
 
@@ -489,8 +504,8 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     NSParameterAssert(alert);
     UIViewController *presentingViewController = self.defaultAlertPresenter;
     if (presentingViewController == nil) {
-        UIApplication *const sharedApp = UIApplication.sharedApplication;
-        UIWindow *const window = [[UIWindow alloc] initWithFrame:sharedApp.keyWindow.frame];
+        UIApplication *const application = self.defaultApplication;
+        UIWindow *const window = [[UIWindow alloc] initWithFrame:application.keyWindow.frame];
         window.windowLevel = UIWindowLevelAlert;
         presentingViewController = MRLocalNotificationFacadeAlertViewController_.new;
         window.rootViewController = presentingViewController;
@@ -519,14 +534,14 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 - (NSInteger)applicationIconBadgeNumber
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    return sharedApp.applicationIconBadgeNumber;
+    UIApplication *const application = self.defaultApplication;
+    return application.applicationIconBadgeNumber;
 }
 
 - (void)setApplicationIconBadgeNumber:(NSInteger const)applicationIconBadgeNumber
 {
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    sharedApp.applicationIconBadgeNumber = applicationIconBadgeNumber;
+    UIApplication *const application = self.defaultApplication;
+    application.applicationIconBadgeNumber = applicationIconBadgeNumber;
 }
 
 #pragma mark Private
@@ -555,8 +570,8 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
         return;
     }
     void(^const handler)(UILocalNotification *, BOOL *) = self.onDidReceiveNotification;
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    BOOL shouldShowAlert = sharedApp.applicationState == UIApplicationStateActive;
+    UIApplication *const application = self.defaultApplication;
+    BOOL shouldShowAlert = application.applicationState == UIApplicationStateActive;
     if (handler) {
         handler(notification, &shouldShowAlert);
     }
@@ -848,13 +863,13 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     NSString *description;
     NSString *recoverySuggestion;
     NSArray *recoveryOptions;
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
+    UIApplication *const application = self.defaultApplication;
     if ([self mr_isNonRecoverableErrorCode:code]) {
         validNotification = NO;
         description = NSLocalizedString(@"Error scheduling notification", nil);
         recoverySuggestion = NSLocalizedString(@"If the problem persists, please contact support.", nil);
         NSURL *const contactSuportURL = self.contactSuportURL;
-        if (contactSuportURL && [sharedApp canOpenURL:contactSuportURL]) {
+        if (contactSuportURL && [application canOpenURL:contactSuportURL]) {
             recoveryOptions = @[ NSLocalizedString(@"Contact Support", nil) ];
         } else {
             recoveryOptions = @[];
@@ -866,7 +881,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
             validNotification = YES;
             recoverySuggestion = NSLocalizedString(@"If the problem persists, please contact support.", nil);
             NSURL *const contactSuportURL = self.contactSuportURL;
-            if (contactSuportURL && [sharedApp canOpenURL:contactSuportURL]) {
+            if (contactSuportURL && [application canOpenURL:contactSuportURL]) {
                 recoveryOptions = @[ NSLocalizedString(@"Contact Support", nil) ];
             } else {
                 recoveryOptions = @[];
@@ -976,9 +991,9 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     } else {
         URL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     }
-    UIApplication *const sharedApp = UIApplication.sharedApplication;
-    if (URL && [sharedApp canOpenURL:URL]) {
-        completed = [sharedApp openURL:URL];
+    UIApplication *const application = self.defaultApplication;
+    if (URL && [application canOpenURL:URL]) {
+        completed = [application openURL:URL];
     }
     return completed;
 }
