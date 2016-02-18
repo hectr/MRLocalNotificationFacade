@@ -70,7 +70,7 @@ Getting started
 Installation
 ------------
 
-### Cocoapods
+### CocoaPods
 
 To add **MRLocalNotificationFacade** to your app, add `pod "MRLocalNotificationFacade"` to your *Podfile*.
 
