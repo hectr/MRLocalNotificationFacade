@@ -25,7 +25,7 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
         let categoryAll = notificationFacade.buildCategory("all", minimalActions: min, defaultActions: def)
         let categoryDefault = notificationFacade.buildCategory("default", minimalActions: nil, defaultActions: def)
         let categoryMinimal = notificationFacade.buildCategory("minimal", minimalActions: min, defaultActions: nil)
-        let categories = NSMutableSet.init()
+        let categories = NSMutableSet()
         categories.addObject(categoryAll)
         categories.addObject(categoryMinimal)
         categories.addObject(categoryDefault)
@@ -86,38 +86,49 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
     
     // MARK:  UIViewController
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        self.reloadData()
+    }
+    
+    // MARK:  NSObject
+
     override func awakeFromNib() {
         super.awakeFromNib();
         // Add observer
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "reloadData", name: "reloadData", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(reloadData), name: "reloadData", object: nil)
         // Set email for support
         notificationFacade.setContactSuportURLWithEmailAddress("support@example.com")
         // Add some logs
         notificationFacade.onDidReceiveNotification = { (notification, pointer) -> Void in
-            println("notification received")
+            print("notification received")
         }
         notificationFacade.onDidCancelNotificationAlert = { (notification) -> Void in
-            println("notification alert cancelled")
+            print("notification alert cancelled")
         }
         notificationFacade.onDidCancelErrorAlert = { (error) -> Void in
-            println("error alert cancelled")
+            print("error alert cancelled")
         }
         notificationFacade.setNotificationHandler({ (identifier, notification) -> Void in
-            println(identifier)
+            print(identifier)
             }, forActionWithIdentifier:"minimal-foreground");
         notificationFacade.setNotificationHandler({ (identifier, notification) -> Void in
-            println(identifier)
+            print(identifier)
             }, forActionWithIdentifier:"minimal-background");
         notificationFacade.setNotificationHandler({ (identifier, notification) -> Void in
-            println(identifier)
+            print(identifier)
             }, forActionWithIdentifier:"default-background0");
         notificationFacade.setNotificationHandler({ (identifier, notification) -> Void in
-            println(identifier)
+            print(identifier)
             }, forActionWithIdentifier:"default-foreground1");
         notificationFacade.setNotificationHandler({ (identifier, notification) -> Void in
-            println(identifier)
+            print(identifier)
             }, forActionWithIdentifier:"default-foreground1");
     }
-
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
 }
 

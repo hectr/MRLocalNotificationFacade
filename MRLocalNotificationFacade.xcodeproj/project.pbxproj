@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		84C43D7C1B3EA1E1002238EC /* libMRLocalNotificationFacade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84C43D701B3EA1E0002238EC /* libMRLocalNotificationFacade.a */; };
-		84C43D8B1B3EA286002238EC /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 84C43D8A1B3EA286002238EC /* Info.plist */; };
 		84C43D9A1B3EA3F5002238EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C43D991B3EA3F5002238EC /* AppDelegate.swift */; };
 		84C43D9C1B3EA3F5002238EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C43D9B1B3EA3F5002238EC /* ViewController.swift */; };
 		84C43D9F1B3EA3F5002238EC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84C43D9D1B3EA3F5002238EC /* Main.storyboard */; };
@@ -218,7 +217,8 @@
 		84C43D681B3EA1E0002238EC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0620;
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
 				TargetAttributes = {
 					84C43D6F1B3EA1E0002238EC = {
 						CreatedOnToolsVersion = 6.2;
@@ -256,7 +256,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84C43D8B1B3EA286002238EC /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,6 +349,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -436,6 +436,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.mrhector.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -449,6 +450,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.mrhector.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -465,6 +467,7 @@
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.mrhector.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Example/Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -480,6 +483,7 @@
 				INFOPLIST_FILE = Example/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "me.mrhector.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Example/Example-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";

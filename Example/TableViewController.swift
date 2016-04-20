@@ -32,14 +32,21 @@ class TableViewController: UITableViewController, UITextFieldDelegate {
         }
         let notification = notificationFacade.buildNotificationWithDate(datePicker.date, timeZone: false, category: category, userInfo: nil)
         notificationFacade.customizeNotificationAlert(notification, title: titleTextField.text, body: bodyTextField.text, action: actionTextField.text, launchImage: nil)
-        var error: NSError?
         if (repeatSwitch.on) {
-            notificationFacade.customizeNotificationRepeat(notification, interval: NSCalendarUnit.CalendarUnitMinute)
+            notificationFacade.customizeNotificationRepeat(notification, interval: NSCalendarUnit.Day)
         }
-        notificationFacade.customizeNotification(notification, appIconBadge: badgeTextField.text.toInt()!, sound: soundSwitch.on)
-        var valid = notificationFacade.scheduleNotification(notification, withError: &error)
-        if (error != nil) {
-            let alert = notificationFacade.buildAlertControlForError(error)
+        if let badgeString = badgeTextField.text {
+            if let badge = Int(badgeString) {
+                notificationFacade.customizeNotification(notification, appIconBadge: badge, sound: soundSwitch.on)
+            }
+        }
+        var valid: Bool = true
+        do {
+            try notificationFacade.scheduleNotification(notification)
+        }
+        catch {
+            valid = false
+            let alert = notificationFacade.buildAlertControlForError(error as NSError)
             notificationFacade.showAlertController(alert)
         }
         if (valid) {

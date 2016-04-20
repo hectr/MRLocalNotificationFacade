@@ -150,14 +150,6 @@ typedef enum {
 - (void)customizeNotification:(UILocalNotification *)notification
                  appIconBadge:(NSInteger)badgeNumber
                         sound:(BOOL)hasSound;
-/**
- Schedules a local notification for delivery at its encapsulated date and time.
- 
- Prior to scheduling any local notifications, you must call the registerUserNotificationSettings: method to let the system know what types of alerts, if any, you plan to display to the user.
- 
- @param notification The local notification object that you want to schedule.
- */
-- (void)scheduleNotification:(UILocalNotification *)notification;
 
 /**
  All currently scheduled local notifications.
@@ -533,6 +525,8 @@ typedef enum {
 
 /**
  Schedules a local notification for delivery at its encapsulated date and time.
+ 
+ Prior to scheduling any local notifications, you must call the registerUserNotificationSettings: method to let the system know what types of alerts, if any, you plan to display to the user.
  
  @param notification The local notification object that you want to schedule.
  @param errorPtr If the notification cannot be scheduled or if it has been scheduled but some problem has been detected, upon return contains an instance of `NSError` that describes the problem.
