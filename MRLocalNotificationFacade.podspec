@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "MRLocalNotificationFacade"
-  s.version          = "0.0.1"
+  s.version          = "1.0.0"
   s.summary          = "MRLocalNotificationFacade is a class that wraps most of the APIs required for dealing with local notifications in iOS."
   s.homepage         = "https://github.com/hectr/MRLocalNotificationFacade"
   s.screenshots     = "https://github.com/hectr/MRLocalNotificationFacade/blob/master/notification.jpg?raw=true"
