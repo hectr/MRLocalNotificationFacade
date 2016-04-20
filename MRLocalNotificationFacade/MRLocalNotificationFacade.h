@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  Predefined domain for errors from `MRLocalNotificationFacade`.
  */
@@ -74,7 +76,7 @@ typedef enum {
  
  Default value is `UILocalNotificationDefaultSoundName`.
  */
-@property (nonatomic, strong) NSString *defaultSoundName;
+@property (nullable, nonatomic, strong) NSString *defaultSoundName;
 
 /**
  Creates an `UILocalNotification` and initializes it with the given parameters.
@@ -87,8 +89,8 @@ typedef enum {
  */
 - (UILocalNotification *)buildNotificationWithDate:(NSDate *)fireDate
                                           timeZone:(BOOL)timeZone
-                                          category:(NSString *)category
-                                          userInfo:(NSDictionary *)userInfo;
+                                          category:(nullable NSString *)category
+                                          userInfo:(nullable NSDictionary *)userInfo;
 
 /**
  Creates an `UILocalNotification` and initializes it with the given parameters.
@@ -99,8 +101,8 @@ typedef enum {
  @return An initialized `UILocalNotification`.
  */
 - (UILocalNotification *)buildNotificationWithInterval:(NSTimeInterval)fireInterval
-                                              category:(NSString *)category
-                                              userInfo:(NSDictionary *)userInfo;
+                                              category:(nullable NSString *)category
+                                              userInfo:(nullable NSDictionary *)userInfo;
 
 /**
  Creates an `UILocalNotification` and initializes it with the given parameters.
@@ -113,8 +115,8 @@ typedef enum {
  */
 - (UILocalNotification *)buildNotificationWithRegion:(CLRegion *)fireRegion
                                         triggersOnce:(BOOL)regionTriggersOnce
-                                            category:(NSString *)category
-                                            userInfo:(NSDictionary *)userInfo;
+                                            category:(nullable NSString *)category
+                                            userInfo:(nullable NSDictionary *)userInfo;
 
 /**
  Customizes the given `notification` with the given `calendarUnit` and the `defaultCalendar` property value.
@@ -135,10 +137,10 @@ typedef enum {
  @param alertLaunchImage Identifies the image used as the launch image when the user taps (or slides) the action button (or slider).
  */
 - (void)customizeNotificationAlert:(UILocalNotification *)notification
-                             title:(NSString *)alertTitle
-                              body:(NSString *)alertBody
-                            action:(NSString *)alertAction
-                       launchImage:(NSString *)alertLaunchImage;
+                             title:(nullable NSString *)alertTitle
+                              body:(nullable NSString *)alertBody
+                            action:(nullable NSString *)alertAction
+                       launchImage:(nullable NSString *)alertLaunchImage;
 
 /**
  Customizes the given `notification` with the given `badgeNumber` and a sound if `hasSound` is `YES`.
@@ -199,8 +201,8 @@ typedef enum {
  @return An initialized `UIMutableUserNotificationCategory`.
  */
 - (UIMutableUserNotificationCategory *)buildCategory:(NSString *)identifier
-                                      minimalActions:(NSArray *)minimalActions
-                                      defaultActions:(NSArray *)defaultActions;
+                                      minimalActions:(nullable NSArray *)minimalActions
+                                      defaultActions:(nullable NSArray *)defaultActions;
 
 /**
  Resets the given actions associated with the `UIUserNotificationActionContextMinimal` context.
@@ -210,8 +212,8 @@ typedef enum {
  @param action1 Second `UIUserNotificationAction` object (may be nil).
  */
 - (void)customizeMinimalCategory:(UIMutableUserNotificationCategory *)category
-                         action0:(UIUserNotificationAction *)action0
-                         action1:(UIUserNotificationAction *)action1;
+                         action0:(nullable UIUserNotificationAction *)action0
+                         action1:(nullable UIUserNotificationAction *)action1;
 
 /**
  Resets the given actions associated with the `UIUserNotificationActionContextDefault` context.
@@ -223,10 +225,10 @@ typedef enum {
  @param action3 Forth `UIUserNotificationAction` object (may be nil).
  */
 - (void)customizeDefaultCategory:(UIMutableUserNotificationCategory *)category
-                         action0:(UIUserNotificationAction *)action0
-                         action1:(UIUserNotificationAction *)action1
-                         action2:(UIUserNotificationAction *)action2
-                         action3:(UIUserNotificationAction *)action3;
+                         action0:(nullable UIUserNotificationAction *)action0
+                         action1:(nullable UIUserNotificationAction *)action1
+                         action2:(nullable UIUserNotificationAction *)action2
+                         action3:(nullable UIUserNotificationAction *)action3;
 
 /**
  Stores the given `handler` block associated with the given `identifier`.
@@ -234,7 +236,7 @@ typedef enum {
  @param handler The block that should be invoked for handling an action for a notification `userInfo`.
  @param identifier The identifier of the action that should be associated with the handler.
  */
-- (void)setNotificationHandler:(void(^)(NSString *identifier, UILocalNotification *notification))handler
+- (void)setNotificationHandler:(void(^_Nullable)(NSString *identifier, UILocalNotification *notification))handler
        forActionWithIdentifier:(NSString *)identifier;
 
 @end
@@ -253,14 +255,14 @@ typedef enum {
 - (void)registerForNotificationWithBadges:(BOOL)badgeType
                                    alerts:(BOOL)alertType
                                    sounds:(BOOL)soundType
-                               categories:(NSSet *)categories;
+                               categories:(nullable NSSet *)categories;
 
 /**
  Returns the user notification settings for the app.
  
  @return A user notification settings object indicating the types of notifications that your app may use.
  */
-- (UIUserNotificationSettings *)currentUserNotificationSettings;
+- (nullable UIUserNotificationSettings *)currentUserNotificationSettings;
 
 /**
  Returns the category from the given user notification settings object whose identifier matches the given one.
@@ -269,8 +271,8 @@ typedef enum {
  @param notificationSettings The user notification settings object.
  @return The category object contained in `notificationSettings` whose identifier matches `categoryIdentifier`.
  */
-- (UIUserNotificationCategory *)getCategoryForIdentifier:(NSString *)categoryIdentifier
-                            fromUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+- (nullable UIUserNotificationCategory *)getCategoryForIdentifier:(nullable NSString *)categoryIdentifier
+                                     fromUserNotificationSettings:(nullable UIUserNotificationSettings *)notificationSettings;
 
 
 /**
@@ -311,12 +313,12 @@ typedef enum {
  
  If `defaultAlertPresenter` is `nil`, a new view controller instance is created for every `showAlertController:` invocation.
  */
-@property (nonatomic, strong) UIViewController *defaultAlertPresenter;
+@property (nullable, nonatomic, strong) UIViewController *defaultAlertPresenter;
 
 /**
  Block invoked when the user cancels an alert created with the `buildAlertControlForNotification:` method.
  */
-@property (nonatomic, copy) void(^onDidCancelNotificationAlert)(UILocalNotification *notification);
+@property (nullable, nonatomic, copy) void(^onDidCancelNotificationAlert)(UILocalNotification *notification);
 
 /**
  Creates an alert for displaying the given notification.
@@ -345,14 +347,14 @@ typedef enum {
  
  Default value is `UIApplication.sharedApplication`.
  */
-@property (nonatomic, strong) UIApplication *defaultApplication;
+@property (nullable, nonatomic, strong) UIApplication *defaultApplication;
 
 /**
  Block invoked by `application:didReceiveLocalNotification:` method when a notification is passed as parameter.
  
  `shouldShowAlert` is given a default value according to the application state, but can be changed within the block.
  */
-@property (nonatomic, copy) void(^onDidReceiveNotification)(UILocalNotification *notification, BOOL *shouldShowAlert);
+@property (nullable, nonatomic, copy) void(^onDidReceiveNotification)(UILocalNotification *notification, BOOL *shouldShowAlert);
 
 /**
  Returns `YES` if the method `application:didRegisterUserNotificationSettings:` is known to have been received with a not `nil` notification settings parameter.
@@ -366,7 +368,7 @@ typedef enum {
  @param launchOptions Launch options dictionary.
  @returns The local notification object or `nil` if `UIApplicationLaunchOptionsLocalNotificationKey` does not contain a local notification or the given `launchOptions` was `nil`.
  */
-- (UILocalNotification *)getNotificationFromLaunchOptions:(NSDictionary *)launchOptions;
+- (nullable UILocalNotification *)getNotificationFromLaunchOptions:(nullable NSDictionary *)launchOptions;
 
 /**
  The number currently set as the badge of the app icon in Springboard.
@@ -387,7 +389,7 @@ typedef enum {
  
  @param notificationSettings The user notification settings that are available to your app. The settings in this object may be different than the ones you originally requested. If it is `nil`, the method returns immediately.
  */
-- (void)handleDidRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+- (void)handleDidRegisterUserNotificationSettings:(nullable UIUserNotificationSettings *)notificationSettings;
 
 /**
  Handles `application:didReceiveLocalNotification:`.
@@ -396,7 +398,7 @@ typedef enum {
  
  @param notification A local notification that encapsulates details about the notification, potentially including custom data. If it is `nil`, the method returns immediately.
  */
-- (void)handleDidReceiveLocalNotification:(UILocalNotification *)notification;
+- (void)handleDidReceiveLocalNotification:(nullable UILocalNotification *)notification;
 
 /**
  Handles `application:handleActionWithIdentifier:forLocalNotification:completionHandler:`.
@@ -407,9 +409,9 @@ typedef enum {
  @param notification The local notification object that was triggered.
  @param completionHandler A block to call when you are finished performing the action.
  */
-- (void)handleActionWithIdentifier:(NSString *)identifier
-              forLocalNotification:(UILocalNotification *)notification
-                 completionHandler:(void (^)())completionHandler;
+- (void)handleActionWithIdentifier:(nullable NSString *)identifier
+              forLocalNotification:(nullable UILocalNotification *)notification
+                 completionHandler:(void (^_Nullable)())completionHandler;
 
 @end
 
@@ -419,14 +421,14 @@ typedef enum {
 /**
  Time zone used when one is needed for building a notification object.
  */
-@property (nonatomic, strong) NSTimeZone *defaultTimeZone;
+@property (nullable, nonatomic, strong) NSTimeZone *defaultTimeZone;
 
 /**
  Calendar used when one is needed for building `NSDate` objects or customizing notification's *repeat interval*.
  
  Default value is `NSCalendar.autoupdatingCurrentCalendar`.
  */
-@property (nonatomic, strong) NSCalendar *defaultCalendar;
+@property (nullable, nonatomic, strong) NSCalendar *defaultCalendar;
 
 /**
  Returns a new `NSDate` object representing the absolute time calculated from given components and `defaultCalendar` property.
@@ -476,12 +478,12 @@ typedef enum {
  @param second A pointer for storing the second value.
  */
 - (void)date:(NSDate *)date
-      getDay:(NSInteger *)day
-       month:(NSInteger *)month
-        year:(NSInteger *)year
-        hour:(NSInteger *)hour
-      minute:(NSInteger *)minute
-      second:(NSInteger *)second;
+      getDay:(nullable NSInteger *)day
+       month:(nullable NSInteger *)month
+        year:(nullable NSInteger *)year
+        hour:(nullable NSInteger *)hour
+      minute:(nullable NSInteger *)minute
+      second:(nullable NSInteger *)second;
 
 /**
  Returns the `fireDate` of the given `notification` converted to GMT (if needed).
@@ -501,19 +503,19 @@ typedef enum {
  
  This property is used when building the error objects used by the `scheduleNotification:withError:` method.
  */
-@property (nonatomic, strong) NSURL *contactSuportURL;
+@property (nullable, nonatomic, strong) NSURL *contactSuportURL;
 
 /**
  Block invoked when the user cancels an alert created with the `buildAlertControlForError:` method.
  */
-@property (nonatomic, copy) void(^onDidCancelErrorAlert)(NSError *error);
+@property (nullable, nonatomic, copy) void(^onDidCancelErrorAlert)(NSError *error);
 
 /**
  Sets a URL in the `contactSupportURL` property using the `mailto` scheme and the given email address.
  
  @param emailAddress The support email address.
  */
-- (void)setContactSuportURLWithEmailAddress:(NSString *)emailAddress;
+- (void)setContactSuportURLWithEmailAddress:(nullable NSString *)emailAddress;
 
 /**
  Returns whether the `scheduledNotifications` array contains an object thas is equal (`isEqual:`) to the given `notification` or not.
@@ -532,8 +534,8 @@ typedef enum {
  @param errorPtr If the notification cannot be scheduled or if it has been scheduled but some problem has been detected, upon return contains an instance of `NSError` that describes the problem.
  @return `YES` if the notification has been scheduled; `NO` otherwise.
  */
-- (BOOL)scheduleNotification:(UILocalNotification *)notification
-                   withError:(NSError **)errorPtr;
+- (BOOL)scheduleNotification:(nullable UILocalNotification *)notification
+                   withError:(NSError *_Nullable*_Nullable)errorPtr;
 
 /**
  Creates an alert for displaying the given error.
@@ -544,3 +546,5 @@ typedef enum {
 - (UIAlertController *)buildAlertControlForError:(NSError *)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

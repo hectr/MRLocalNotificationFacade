@@ -327,7 +327,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 {
     UIApplication *const application = self.defaultApplication;
     NSArray *const localNotifications = application.scheduledLocalNotifications;
-    return localNotifications;
+    return (localNotifications ?: @[]);
 }
 
 - (void)cancelNotification:(UILocalNotification *const)notification
@@ -585,7 +585,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
               forLocalNotification:(UILocalNotification *const)notification
                  completionHandler:(void (^const)())completionHandler
 {
-    if (identifier) {
+    if (identifier && notification) {
         void(^const handler)(NSString *, UILocalNotification *) = self.actionHandlers[identifier];
         if (handler) {
             handler(identifier, notification);
@@ -684,6 +684,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 - (NSDate *)getGMTFireDateFromNotification:(UILocalNotification *const)notification
 {
+    NSParameterAssert(notification);
     NSDate *gmtDate;
     NSTimeZone *const timeZone = notification.timeZone;
     NSDate *const fireDate = notification.fireDate;
