@@ -738,43 +738,9 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 - (BOOL)scheduleNotification:(UILocalNotification *const)notification
                    withError:(NSError **const)errorPtr
 {
-    BOOL recoverable = YES;
-    if (notification == nil) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorNilObject];
-    } else if (![notification isKindOfClass:UILocalNotification.class]) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorInvalidObject];
-    } else if ([self getGMTFireDateFromNotification:notification].timeIntervalSinceNow < 0) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorInvalidDate];
-    } else if (notification.region == nil && notification.fireDate == nil) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorMissingDate];
-    } else if ([self scheduledNotificationsContainsNotification:notification]) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorAlreadyScheduled];
-    } else if (!self.isRegisteredForNotifications) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorNoneAllowed];
-    } else if (notification.soundName && !self.isSoundTypeAllowed) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorSoundNotAllowed];
-    } else if (notification.alertBody && !self.isAlertTypeAllowed) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorAlertNotAllowed];
-    } else if (notification.applicationIconBadgeNumber != 0 && !self.isBadgeTypeAllowed) {
-        recoverable = [self mr_buildError:errorPtr
-                                 withCode:MRLocalNotificationErrorBadgeNotAllowed];
-    } else {
-        NSString *const category = notification.category;
-        UIUserNotificationSettings *const settings = self.currentUserNotificationSettings;
-        if (category && [self getCategoryForIdentifier:category
-                          fromUserNotificationSettings:settings] == nil) {
-            recoverable = [self mr_buildError:errorPtr
-                                     withCode:MRLocalNotificationErrorCategoryNotRegistered];
-        }
-    }
+    BOOL const recoverable = [self canScheduleNotification:notification
+                                              withRecovery:YES
+                                                     error:errorPtr];
     if (recoverable) {
         [self scheduleNotification:notification];
         if (![self scheduledNotificationsContainsNotification:notification]) {
@@ -782,6 +748,33 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
         }
     }
     return recoverable;
+}
+
+- (BOOL)canScheduleNotification:(UILocalNotification *const)notification
+                   withRecovery:(BOOL const)recovery
+                          error:(NSError **const)errorPtr
+{
+    NSError *error;
+    BOOL recoverable = [self mr_isNotificationValid:notification
+                                       withRecovery:recovery
+                                              error:&error];
+    if (recoverable && [self getGMTFireDateFromNotification:notification].timeIntervalSinceNow < 0) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorInvalidDate];
+    }
+    if (recoverable && notification.region == nil && notification.fireDate == nil) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorMissingDate];
+    }
+    if (recoverable && [self scheduledNotificationsContainsNotification:notification]) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorAlreadyScheduled];
+    }
+    if (error && errorPtr) {
+        *errorPtr = error;
+    }
+    BOOL const canSchedule = (recovery ? recoverable : error == nil);
+    return canSchedule;
 }
 
 - (UIAlertController *)buildAlertControlForError:(NSError *const)error
@@ -860,6 +853,56 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 #pragma mark Private
 
+- (BOOL)mr_isNotificationValid:(UILocalNotification *const)notification
+                  withRecovery:(BOOL const)recovery
+                         error:(NSError **const)errorPtr
+{
+    NSError *error;
+    BOOL recoverable = YES;
+    if (notification == nil) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorNilObject];
+    }
+    if (recoverable && ![notification isKindOfClass:UILocalNotification.class]) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorInvalidObject];
+    }
+    if (recoverable && notification.alertBody.length == 0 && notification.applicationIconBadgeNumber <= 0) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorMissingAlertBody];
+    }
+    if (recoverable && notification.soundName && !self.isSoundTypeAllowed) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorSoundNotAllowed];
+    }
+    if (recoverable && notification.applicationIconBadgeNumber != 0 && !self.isBadgeTypeAllowed) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorBadgeNotAllowed];
+    }
+    if (recoverable && notification.alertBody && !self.isAlertTypeAllowed) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorAlertNotAllowed];
+    }
+    if (recoverable && !self.isRegisteredForNotifications) {
+        recoverable = [self mr_buildError:&error
+                                 withCode:MRLocalNotificationErrorNoneAllowed];
+    }
+    if (recoverable) {
+        NSString *const category = notification.category;
+        UIUserNotificationSettings *const settings = self.currentUserNotificationSettings;
+        if (category && [self getCategoryForIdentifier:category
+                          fromUserNotificationSettings:settings] == nil) {
+            recoverable = [self mr_buildError:&error
+                                     withCode:MRLocalNotificationErrorCategoryNotRegistered];
+        }
+    }
+    if (error && errorPtr) {
+        *errorPtr = error;
+    }
+    BOOL const isValid = (recovery ? recoverable : error == nil);
+    return isValid;
+}
+
 - (BOOL)mr_buildError:(NSError **const)errorPtr withCode:(MRLocalNotificationErrorCode const)code
 {
     BOOL validNotification;
@@ -909,12 +952,13 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 - (BOOL)mr_isNonRecoverableErrorCode:(MRLocalNotificationErrorCode const)code
 {
-    return (code == MRLocalNotificationErrorUnknown         ||
-            code == MRLocalNotificationErrorNilObject       ||
-            code == MRLocalNotificationErrorInvalidObject   ||
-            code == MRLocalNotificationErrorInvalidDate     ||
-            code == MRLocalNotificationErrorMissingDate     ||
-            code == MRLocalNotificationErrorAlreadyScheduled);
+    return (code == MRLocalNotificationErrorUnknown             ||
+            code == MRLocalNotificationErrorNilObject           ||
+            code == MRLocalNotificationErrorInvalidObject       ||
+            code == MRLocalNotificationErrorInvalidDate         ||
+            code == MRLocalNotificationErrorMissingDate         ||
+            code == MRLocalNotificationErrorAlreadyScheduled    ||
+            code == MRLocalNotificationErrorMissingAlertBody    );
 }
 
 - (NSString *)mr_localizedFailureReasonForCode:(MRLocalNotificationErrorCode const)code
@@ -940,6 +984,8 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
         failureReason = NSLocalizedString(@"Notification provided is not valid.", nil);
     } else if (code == MRLocalNotificationErrorCategoryNotRegistered) {
         failureReason = NSLocalizedString(@"Notification scheduled, but its actions group is not registered.", nil);
+    } else if (code == MRLocalNotificationErrorMissingAlertBody) {
+        failureReason = NSLocalizedString(@"Notification is missing an alert body or icon badge number.", nil);
     } else {
         NSAssert(code == MRLocalNotificationErrorUnknown, @"unhandled code");
         failureReason = NSLocalizedString(@"Unknown error.", nil);

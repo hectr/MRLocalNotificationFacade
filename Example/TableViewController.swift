@@ -40,17 +40,21 @@ class TableViewController: UITableViewController, UITextFieldDelegate {
                 notificationFacade.customizeNotification(notification, appIconBadge: badge, sound: soundSwitch.on)
             }
         }
-        var valid: Bool = true
+        // show error alert if needed
         do {
-            try notificationFacade.scheduleNotification(notification)
+            try notificationFacade.canScheduleNotification(notification, withRecovery: false)
         }
         catch {
-            valid = false
             let alert = notificationFacade.buildAlertControlForError(error as NSError)
             notificationFacade.showAlertController(alert)
         }
-        if (valid) {
+        // schedule notification if possible
+        do {
+            try notificationFacade.scheduleNotification(notification)
             navigationController?.popViewControllerAnimated(true)
+        }
+        catch {
+            
         }
     }
     

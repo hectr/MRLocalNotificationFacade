@@ -60,6 +60,8 @@ typedef enum {
     MRLocalNotificationErrorAlreadyScheduled      = 1959,
     /** Notification category not registered. */
     MRLocalNotificationErrorCategoryNotRegistered = 1960,
+    /** Missing notification alert body.      */
+    MRLocalNotificationErrorMissingAlertBody      = 1961,
 } MRLocalNotificationErrorCode;
 
 
@@ -545,6 +547,18 @@ typedef enum {
  */
 - (BOOL)scheduleNotification:(nullable UILocalNotification *)notification
                    withError:(NSError *_Nullable*_Nullable)errorPtr;
+
+/**
+ Checks if a local notification can be scheduled.
+ 
+ @param notification The local notification object that you want to check.
+ @param recovery If `recovery` parameter is `NO`, any error generated will be considered enough to prevent the given notification from being scheduled; if `YES` is passed, only non-recoverable errors will.
+ @param errorPtr If the notification cannot be scheduled or if some problem has been detected, upon return contains an instance of `NSError` that describes the problem.
+ @return `YES` if the notification can be scheduled; `NO` otherwise.
+ */
+- (BOOL)canScheduleNotification:(nullable UILocalNotification *)notification
+                   withRecovery:(BOOL)recovery
+                          error:(NSError *_Nullable*_Nullable)errorPtr;
 
 /**
  Creates an alert for displaying the given error.
