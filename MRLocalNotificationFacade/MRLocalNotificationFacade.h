@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 extern NSString *const MRLocalNotificationErrorDomain;
 
+/**
+ The corresponding value is the URL associated to the recovery option. 
+ */
+extern NSString *const MRRecoveryURLErrorKey;
 
 /**
  Error codes within the `MRLocalNotificationErrorDomain`.
@@ -503,7 +507,7 @@ typedef enum {
  
  This property is used when building the error objects used by the `scheduleNotification:withError:` method.
  */
-@property (nullable, nonatomic, strong) NSURL *contactSuportURL;
+@property (nullable, nonatomic, strong) NSURL *contactSupportURL;
 
 /**
  Block invoked when the user cancels an alert created with the `buildAlertControlForError:` method.
@@ -514,8 +518,13 @@ typedef enum {
  Sets a URL in the `contactSupportURL` property using the `mailto` scheme and the given email address.
  
  @param emailAddress The support email address.
+ @param subject The email subject (optional).
+ @param body The email body (optional).
  */
-- (void)setContactSuportURLWithEmailAddress:(nullable NSString *)emailAddress;
+- (void)setContactSupportURLWithEmailAddress:(NSString *)emailAddress
+                                     subject:(nullable NSString *)subject
+                                        body:(nullable NSString *)body;
+
 
 /**
  Returns whether the `scheduledNotifications` array contains an object thas is equal (`isEqual:`) to the given `notification` or not.

@@ -98,7 +98,7 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
         // Add observer
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(reloadData), name: "reloadData", object: nil)
         // Set email for support
-        notificationFacade.setContactSuportURLWithEmailAddress("support@example.com")
+        notificationFacade.setContactSupportURLWithEmailAddress("support@example.com", subject: nil, body: nil)
         // Add some logs
         notificationFacade.onDidReceiveNotification = { (notification, pointer) -> Void in
             print("notification received")

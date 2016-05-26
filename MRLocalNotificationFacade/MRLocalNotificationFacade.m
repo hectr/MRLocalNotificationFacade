@@ -25,6 +25,8 @@
 
 NSString *const MRLocalNotificationErrorDomain = @"MRLocalNotificationErrorDomain";
 
+NSString *const MRRecoveryURLErrorKey = @"MRRecoveryURLErrorKey";
+
 static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotificationsRegisteredKey";
 
 
@@ -132,7 +134,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 @property (nonatomic, strong) UIViewController *defaultAlertPresenter;
 @property (nonatomic, copy) void(^onDidCancelNotificationAlert)(UILocalNotification *notification);
 @property (nonatomic, strong) NSMutableDictionary *actionHandlers;
-@property (nonatomic, strong) NSURL *contactSuportURL;
+@property (nonatomic, strong) NSURL *contactSupportURL;
 @property (nonatomic, copy) void(^onDidCancelErrorAlert)(NSError *error);
 @end
 
@@ -865,39 +867,37 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     NSString *recoverySuggestion;
     NSArray *recoveryOptions;
     UIApplication *const application = self.defaultApplication;
+    BOOL contactSupport = NO;
+    NSURL *recoveryURL;
     if ([self mr_isNonRecoverableErrorCode:code]) {
         validNotification = NO;
         description = NSLocalizedString(@"Error scheduling notification", nil);
-        recoverySuggestion = NSLocalizedString(@"If the problem persists, please contact support.", nil);
-        NSURL *const contactSuportURL = self.contactSuportURL;
-        if (contactSuportURL && [application canOpenURL:contactSuportURL]) {
-            recoveryOptions = @[ NSLocalizedString(@"Contact Support", nil) ];
-        } else {
-            recoveryOptions = @[];
-        }
+        NSURL *const contactSupportURL = self.contactSupportURL;
+        contactSupport = (contactSupportURL && [application canOpenURL:contactSupportURL]);
     } else {
         validNotification = YES;
         description = NSLocalizedString(@"Local notifications", nil);
         if (code == MRLocalNotificationErrorCategoryNotRegistered) {
-            validNotification = YES;
-            recoverySuggestion = NSLocalizedString(@"If the problem persists, please contact support.", nil);
-            NSURL *const contactSuportURL = self.contactSuportURL;
-            if (contactSuportURL && [application canOpenURL:contactSuportURL]) {
-                recoveryOptions = @[ NSLocalizedString(@"Contact Support", nil) ];
-            } else {
-                recoveryOptions = @[];
-            }
-        } else {
-            recoverySuggestion = NSLocalizedString(@"Please go to Settings and enable missing notification type.", nil);
-            recoveryOptions = @[ NSLocalizedString(@"Settings", nil) ];
+            NSURL *const contactSupportURL = self.contactSupportURL;
+            contactSupport = (contactSupportURL && [application canOpenURL:contactSupportURL]);
         }
+    }
+    if (contactSupport) {
+        recoveryOptions = @[ NSLocalizedString(@"Contact Support", nil) ];
+        recoverySuggestion = NSLocalizedString(@"If the problem persists, please contact support.", nil);
+        recoveryURL = self.contactSupportURL;
+    } else {
+        recoverySuggestion = NSLocalizedString(@"Please go to Settings and enable missing notification types.", nil);
+        recoveryOptions = @[ NSLocalizedString(@"Settings", nil) ];
+        recoveryURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     }
     NSString *const failureReason = [self mr_localizedFailureReasonForCode:code];
     NSDictionary * const userInfo = @{ NSLocalizedDescriptionKey: description,
                                        NSLocalizedFailureReasonErrorKey: failureReason,
                                        NSLocalizedRecoverySuggestionErrorKey: recoverySuggestion,
                                        NSLocalizedRecoveryOptionsErrorKey: recoveryOptions,
-                                       NSRecoveryAttempterErrorKey: self };
+                                       NSRecoveryAttempterErrorKey: self,
+                                       MRRecoveryURLErrorKey: recoveryURL };
     NSError *const error = [NSError errorWithDomain:MRLocalNotificationErrorDomain
                                                code:code
                                            userInfo:userInfo];
@@ -949,14 +949,27 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 #pragma mark - NSErrorRecoveryAttempting
 
-- (void)setContactSuportURLWithEmailAddress:(NSString *const)emailAddress
+- (void)setContactSupportURLWithEmailAddress:(NSString *const)emailAddress
+                                     subject:(NSString *const)subject
+                                        body:(NSString *const)body
 {
-    if (emailAddress) {
-        NSString *const url = [NSString stringWithFormat:@"mailto:%@", emailAddress];
-        self.contactSuportURL = [NSURL URLWithString:url];
-    } else {
-        self.contactSuportURL = nil;
+    NSParameterAssert(emailAddress);
+    NSString *const scheme = @"mailto";
+    NSMutableString *const url = [NSMutableString stringWithFormat:@"%@:%@", scheme, emailAddress];
+    NSMutableArray *const queryComponents = [NSMutableArray arrayWithCapacity:2];
+    if (subject.length > 0) {
+        [queryComponents addObject:[NSString stringWithFormat:@"subject=%@", subject]];
     }
+    if (body.length > 0) {
+        [queryComponents addObject:[NSString stringWithFormat:@"body=%@", body]];
+    }
+    if (queryComponents.count > 0) {
+        NSCharacterSet *const charSet = NSCharacterSet.URLQueryAllowedCharacterSet;
+        NSString *const query = [queryComponents componentsJoinedByString:@"&"];
+        NSString *encodedQuery = [query stringByAddingPercentEncodingWithAllowedCharacters:charSet];
+        [url appendFormat:@"?%@", encodedQuery];
+    }
+    self.contactSupportURL = [NSURL URLWithString:url];
 }
 
 - (void)attemptRecoveryFromError:(NSError *const)error
@@ -984,14 +997,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     
     NSParameterAssert(error);
     BOOL completed = NO;
-    NSURL *URL;
-    NSInteger const code = error.code;
-    if ([self mr_isNonRecoverableErrorCode:(MRLocalNotificationErrorCode)code]
-        || code == MRLocalNotificationErrorCategoryNotRegistered) {
-        URL = self.contactSuportURL;
-    } else {
-        URL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-    }
+    NSURL *const URL = error.userInfo[MRRecoveryURLErrorKey];
     UIApplication *const application = self.defaultApplication;
     if (URL && [application canOpenURL:URL]) {
         completed = [application openURL:URL];
