@@ -473,8 +473,8 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 {
     NSParameterAssert(notification);
     NSBundle *const mainBundle = NSBundle.mainBundle;
-    NSDictionary *const localizedInfoDictionary = mainBundle.localizedInfoDictionary;
-    NSString *const bundleName =localizedInfoDictionary[(NSString *)kCFBundleNameKey];
+    NSDictionary *const localizedInfoDictionary = mainBundle.localizedInfoDictionary ?: mainBundle.infoDictionary;
+    NSString *const bundleName = localizedInfoDictionary[(NSString *)kCFBundleNameKey];
     NSString *const alertBody = notification.alertBody;
     UIAlertControllerStyle const preferredStyle = UIAlertControllerStyleAlert;
     UIAlertController *const alert = [UIAlertController alertControllerWithTitle:bundleName
