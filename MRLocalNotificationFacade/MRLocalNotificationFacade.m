@@ -298,7 +298,7 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     NSParameterAssert(notification);
     if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
         notification.alertTitle = alertTitle;
-    } else if (alertTitle) {
+    } else if (alertTitle.length > 0) {
         NSLog(@"setAlertTitle: not supported");
     }
     notification.alertBody = alertBody;
