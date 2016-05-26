@@ -485,6 +485,9 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     UIUserNotificationCategory *const category = [self getCategoryForIdentifier:categoryIdentifier
                                                    fromUserNotificationSettings:settings];
     NSArray *const actions = [category actionsForContext:UIUserNotificationActionContextDefault];
+    if (alertBody.length == 0 && actions == nil) {
+        return nil;
+    }
     __weak typeof(self) welf = self;
     for (UIUserNotificationAction *const notificationAction in actions) {
         UIAlertAction *const alertAction =
@@ -589,7 +592,9 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     }
     if (shouldShowAlert) {
         UIAlertController *const alert = [self buildAlertControlForNotification:notification];
-        [self showAlertController:alert];
+        if (alert) {
+            [self showAlertController:alert];
+        }
     }
 }
 
