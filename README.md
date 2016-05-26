@@ -81,7 +81,7 @@ Copy the *MRLocalNotificationFacade* directory into your project.
 Usage
 -----
 
-You do pretty much the same you would do if you were not using *MRLocalNotificationFacade*, but using it.
+You do pretty much the same you would do if you were not using *MRLocalNotificationFacade*, but using it ;)
 
 ### Register for notifications
 
@@ -141,7 +141,7 @@ You just proceed to create the notification and schedule it using the several `b
     BOOL scheduled = [notificationFacade scheduleNotification:notification
                                                       withError:&error];
     if (error && scheduled) {
-        // user needs to change settings, the recovery attempter will handle this
+        // if the user needs to change settings, the recovery attempter will handle this
         UIAlertController *alert = [notificationFacade buildAlertControlForError:error];
         [notificationFacade showAlertController:alert];
     } else {
@@ -150,6 +150,25 @@ You just proceed to create the notification and schedule it using the several `b
         [notificationFacade showAlertController:alert];
     }
 }
+```
+
+### Check notification validity
+
+Even if you are already handling your app's local notifications, you can still use *MRLocalNotificationFacade* for checking your local notification objects validity:
+
+```objc
+    NSError *error;
+    BOOL canSchedule = [notificationFacade canScheduleNotification:notification
+                                                      withRecovery:YES
+                                                             error:&error];
+    if (canSchedule && error) {
+        // user needs to change settings or the app has to register notification's category
+        UIAlertController *alert = [notificationFacade buildAlertControlForError:error];
+        [notificationFacade showAlertController:alert];
+    } else if (!canSchedule) {
+        // notification is not valid
+        NSAssert(NO, @"unhandled error: %@", error);
+    }
 ```
 
 License
