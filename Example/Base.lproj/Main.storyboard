@@ -91,6 +91,11 @@
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="uyj-Gb-Fc8"/>
                                     <barButtonItem enabled="NO" title="count: 0" id="v5q-tB-KeD"/>
+                                    <barButtonItem systemItem="refresh" id="4uf-WX-xY9">
+                                        <connections>
+                                            <action selector="reloadData" destination="BYZ-38-t0r" id="x94-tm-GAQ"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                         </subviews>

@@ -12,6 +12,10 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
     
     var selectedIndex: NSIndexPath?
     
+    @IBAction func reloadData() {
+        tableView.reloadData()
+    }
+    
     @IBAction func registerAction(sender: AnyObject) {
         let min = [
             notificationFacade.buildAction("minimal-background", title: "background", destructive: true, backgroundMode: false, authentication: true),
@@ -30,6 +34,9 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
         categories.addObject(categoryMinimal)
         categories.addObject(categoryDefault)
         notificationFacade.registerForNotificationWithBadges(true, alerts: true, sounds: true, categories: categories as Set<NSObject>);
+        if (!notificationFacade.isRegisteredForNotifications()) {
+            print("touch ↺ button after enabling notifications for reloading table view")
+        }
     }
     
     @IBAction func removeNotificationAction(sender: AnyObject) {
@@ -40,13 +47,9 @@ class ViewController: UIViewController, /*UITableViewDataSource,*/ UITableViewDe
                 let notification = notifications[index!] as! UILocalNotification
                 notificationFacade.cancelNotification(notification)
                 selectedIndex = nil
-                tableView.reloadData()
+                self.reloadData()
             }
         }
-    }
-    
-    func reloadData() {
-        tableView.reloadData()
     }
     
     // MARK:  UITableViewDataSource
