@@ -527,6 +527,27 @@ typedef enum {
                                      subject:(nullable NSString *)subject
                                         body:(nullable NSString *)body;
 
+/**
+ Presents a local notification immediately.
+ 
+ Prior to presenting any local notifications, you must call the registerUserNotificationSettings: method to let the system know what types of alerts, if any, you plan to display to the user.
+ 
+ @param notification The local notification object that you want to present.
+ @param errorPtr If the notification cannot be presented, upon return contains an instance of `NSError` that describes the problem.
+ @return `YES` if the notification has been presented; `NO` otherwise.
+ */
+- (BOOL)presentNotificationNow:(nullable UILocalNotification *)notification
+                     withError:(NSError *_Nullable*_Nullable)errorPtr;
+
+/**
+ Checks if a local notification can be presented now.
+ 
+ @param notification The local notification object that you want to check.
+ @param errorPtr If the notification cannot be presented, upon return contains an instance of `NSError` that describes the problem.
+ @return `YES` if the notification can be presented now; `NO` otherwise.
+ */
+- (BOOL)canPresentNotificationNow:(nullable UILocalNotification *)notification
+                            error:(NSError *_Nullable*_Nullable)errorPtr;
 
 /**
  Returns whether the `scheduledNotifications` array contains an object thas is equal (`isEqual:`) to the given `notification` or not.

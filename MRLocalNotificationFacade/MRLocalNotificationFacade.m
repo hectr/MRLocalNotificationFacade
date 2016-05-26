@@ -318,6 +318,16 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
     }
 }
 
+- (void)presentNotificationNow:(UILocalNotification *const)notification
+{
+    NSParameterAssert(notification);
+    if (!NSThread.isMainThread) {
+        NSLog(@"presenting notification from a thread other than the main thread");
+    }
+    UIApplication *const application = self.defaultApplication;
+    [application presentLocalNotificationNow:notification];
+}
+
 - (void)scheduleNotification:(UILocalNotification *const)notification
 {
     NSParameterAssert(notification);
@@ -722,6 +732,38 @@ static NSString *const kMRUserNotificationsRegisteredKey = @"kMRUserNotification
 
 
 @implementation MRLocalNotificationFacade (NSErrorRecoveryAttempting)
+
+- (BOOL)presentNotificationNow:(UILocalNotification *const)notification
+                     withError:(NSError **const)errorPtr
+{
+    BOOL const recoverable = [self canPresentNotificationNow:notification
+                                                       error:errorPtr];
+    if (recoverable) {
+        UIApplication *const application = self.defaultApplication;
+        switch (application.applicationState) {
+            case UIApplicationStateActive:
+                NSLog(@"presenting notification in active state");
+                break;
+            case UIApplicationStateInactive:
+                NSLog(@"presenting notification in inactive state");
+                break;
+            case UIApplicationStateBackground:
+                // expected case
+                break;
+        }
+        [self presentNotificationNow:notification];
+    }
+    return recoverable;
+}
+
+- (BOOL)canPresentNotificationNow:(UILocalNotification *const)notification
+                            error:(NSError **const)errorPtr
+{
+    BOOL const canSchedule = [self mr_isNotificationValid:notification
+                                             withRecovery:NO
+                                                    error:errorPtr];
+    return canSchedule;
+}
 
 - (BOOL)scheduledNotificationsContainsNotification:(UILocalNotification *const)notification
 {
